@@ -25,13 +25,44 @@ public class Delete {
     public static void main(String[] args) {
         try {
             createSessionFactory(Authors.class);
-            testAddDelete();
+//------------------------------------------------------------------------------ CREATE NEW OBJECT
+            Authors author = new Authors("Jojo", "Scooby", "09587931547", "Male");
+            addAuthor(author);
+//------------------------------------------------------------------------------ DELETE OBJECT VIA INSTANCE
+            openSession();
+            deleteAuthor(author);
+//------------------------------------------------------------------------------ TEST CREATE, DELETE NEW OBJECT 
+//            testAddDelete();
         } finally {
             factory.close();
         }
     }
 
-//------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ DELETE OBJECT VIA INSTANCE
+    public static void deleteAuthor(Authors authorsObj) {
+        try {
+            session.delete(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------ ADD OBJECT
+    public static void addAuthor(Authors authorsObj) {
+        try {
+            session.save(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------ DELETE OBJECT VIA ID
     public static void deleteData_Authors(Authors authorsObj) {
         if (!isNull(authorsObj)) {
             int authorsID = authorsObj.getIdauthors();
@@ -43,28 +74,35 @@ public class Delete {
         }
     }
 
-//------------------------------------------------------------------------------ 
+//------------------------------------------------------------------------------ DELETE OBJECTS VIA LIST OF INSTANCE
     public static void deleteData_Authors(List<Authors> authorsObj) {
         if (!isNull(authorsObj)) {
             for (Authors list : authorsObj) {
-                int authorsID = list.getIdauthors();
-//                if (isEntityIDExist(Authors.class, authorsID)) { 
-                session.createQuery("delete from Authors where idauthors=" + authorsID).executeUpdate();
-//                }
+                if (isEntityIDExist(Authors.class, list.getIdauthors())) {
+                    session.createQuery("delete from Authors where idauthors=" + list.getIdauthors()).executeUpdate();
+                }
             }
             session.getTransaction().commit();
         }
 
     }
 
-//------------------------------------------------------------------------------ DISPLAY INFO
+//------------------------------------------------------------------------------ DISPLAY OBJECT INFO VIA OBJECT
+    private static void displayObject(Object object) {
+        if (!isNull(object)) {
+            System.out.println(object.toString());
+        } else {
+        }
+    }
+
+//------------------------------------------------------------------------------ DISPLAY INFO VIA INSTANCE
     private static void displayAuthor(Authors authorsObj) {
         if (!isNull(authorsObj)) {
             System.out.println(authorsObj.toString());
         }
     }
 
-//------------------------------------------------------------------------------ DISPLAY INFO
+//------------------------------------------------------------------------------ DISPLAY OBJECTS INFO VIA LIST OF OF INSTANCE
     private static void displayAuthorsList(List<Authors> authorsList) {
         if (!isNull(authorsList)) {
             for (Authors list : authorsList) {

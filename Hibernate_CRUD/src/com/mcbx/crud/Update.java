@@ -8,7 +8,9 @@ package com.mcbx.crud;
 /**
  *
  * @author MaCuBeX
- */ 
+ */
+import static com.mcbx.crud.Create.session;
+import static com.mcbx.crud.Delete.session;
 import hibernate.Config;
 import com.mcbx.entity.Authors;
 import java.util.List;
@@ -21,23 +23,53 @@ public class Update {
 
     static SessionFactory factory;
     static Session session;
+    static int randomNumber = getRandomNumber(100, 1);
 
     public static void main(String[] args) {
         try {
             createSessionFactory(Authors.class);
+//------------------------------------------------------------------------------ CREATE NEW OBJECT
+            Authors author = new Authors("Jojo", "Scooby", "09587931547", "Male");
+            addAuthor(author);
+//------------------------------------------------------------------------------ UPDATE OBJECT
             openSession();
-            updateData_Authors(2);
-
-            openSession();
-            updateData_Authors(Authors.class, 1);
-
-            openSession();
-            Query query = session.createNamedQuery("Authors.findAll");
-            List<Authors> authorsList = query.getResultList();
-            updateData_Authors(Authors.class, authorsList);
-            displayAuthorsList(authorsList);
+            updateAuthor(author, randomNumber + ""); 
+//------------------------------------------------------------------------------ UPDATE OBJECT
+//            updateData_Authors(randomNumber);
+//            updateData_Authors(Authors.class, 1);
+//------------------------------------------------------------------------------ UPDATE LIST OF OBJECTS
+//            openSession();
+//            Query query = session.createNamedQuery("Authors.findAll");
+//            List<Authors> authorsList = query.getResultList();
+//            updateData_Authors(Authors.class, authorsList);
+//            displayAuthorsList(authorsList);
         } finally {
             factory.close();
+        }
+    }
+
+//------------------------------------------------------------------------------ CREATE OBJECT
+    public static void addAuthor(Authors authorsObj) {
+        try {
+            session.save(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------ UPDATE OBJECT
+    public static void updateAuthor(Authors authorsObj, String firstname) {
+        try {
+            authorsObj.setFirstname(firstname);
+            session.update(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
         }
     }
 
@@ -52,7 +84,7 @@ public class Update {
         if (!isNull(authorEntity)) {
             if (isEntityIDExist(authorEntity, id)) {
                 Authors author = session.get(authorEntity, id);
-                author.setFirstname("New Updated Name");
+                author.setFirstname(randomNumber + "");
                 session.getTransaction().commit();
             }
 
@@ -65,10 +97,18 @@ public class Update {
             for (Authors list : authorsList) {
                 if (isEntityIDExist(authorEntity, list.getIdauthors())) {
                     Authors author = session.find(authorEntity, list.getIdauthors());
-                    author.setIntegerval(3333);
+                    author.setIntegerval(randomNumber);
                 }
             }
             session.getTransaction().commit();
+        }
+    }
+
+//------------------------------------------------------------------------------ DISPLAY OBJECT INFO
+    private static void displayObject(Object object) {
+        if (!isNull(object)) {
+            System.out.println(object.toString());
+        } else { 
         }
     }
 
@@ -84,7 +124,7 @@ public class Update {
         if (!isNull(authorsList)) {
             for (Authors list : authorsList) {
 //                if (isEntityIDExist(Authors.class, list.getIdauthors())) {
-                    System.out.println(list.toString());
+                System.out.println(list.toString());
 //                }
             }
         }
@@ -110,5 +150,12 @@ public class Update {
             session.beginTransaction();
         }
 
+    }
+
+//------------------------------------------------------------------------------ GET RANDOM NUMBER   
+    private static int getRandomNumber(int min, int max) {
+        int range = max - min + 1;
+        int ran = (int) (Math.random() * range) + min;
+        return ran;
     }
 }

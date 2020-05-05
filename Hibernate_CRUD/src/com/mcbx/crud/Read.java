@@ -9,6 +9,7 @@ package com.mcbx.crud;
  *
  * @author MaCuBeX
  */
+import static com.mcbx.crud.Create.session;
 import hibernate.Config;
 import com.mcbx.entity.Authors;
 import com.mcbx.entity.Members;
@@ -26,36 +27,77 @@ public class Read {
     public static void main(String[] args) {
         try {
             createSessionFactory(Authors.class);
-//            Authors author = new Authors("firstname", "lastname", "contactnumber", "Male");
-//            session.save(author);
-//            session.getTransaction().commit();
+//------------------------------------------------------------------------------ CREATE NEW OBJECT
+//            Authors author = new Authors("Jojo", "Scooby", "09587931547", "Male");
+//            addAuthor(author);
+//------------------------------------------------------------------------------ GET OBJECT VIA ID
 //            openSession();
-//            displayAuthor(getData_Authors(author));
+//            Authors getObj = getAuthor(4111);
+//            displayAuthor(getObj);
+//------------------------------------------------------------------------------ GET OBJECT VIA ID
+            openSession();
+            Authors getObj = (Authors) getObject(Authors.class, 233333);
+            displayObject(getObj);
+//------------------------------------------------------------------------------
 //            openSession();
 //            displayAuthor(getData_Authors(3));
-
 //            openSession();
 //            displayAuthorsList(getData_Authors());
 //            openSession();
 //            displayAuthorsList(getData_Authors("Male"));
-
-            createSessionFactory(Members.class);
-            displayMembersList(getData_Members());
-
+//            createSessionFactory(Members.class);
+//            displayMembersList(getData_Members());
         } finally {
             factory.close();
+        }
+    }
+
+//------------------------------------------------------------------------------ RETURN OBJECT, NULL IF NOT FOUND
+    public static Object getObject(Class<?> pojoClass, int id) {
+        try {
+            Object obj = session.get(pojoClass, id);
+            session.getTransaction().commit();
+            return obj;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+        return null;
+    }
+
+//------------------------------------------------------------------------------ RETURN OBJECT, NULL IF NOT FOUND
+    public static Authors getAuthor(int id) {
+        try {
+            Authors obj = session.get(Authors.class, id);
+            session.getTransaction().commit();
+            return obj;
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+        return null;
+    }
+
+//------------------------------------------------------------------------------ ADD OBJECT
+    public static void addAuthor(Authors authorsObj) {
+        try {
+            session.save(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
         }
     }
 
 //------------------------------------------------------------------------------ RETURN ARUTHOR
     private static Authors getData_Authors(Authors authorsObj) {
         if (!isNull(authorsObj)) {
-            if (isEntityIDExist(Authors.class,
-                    authorsObj.getIdauthors())) {
+            if (isEntityIDExist(Authors.class, authorsObj.getIdauthors())) {
                 Authors get = session.get(Authors.class, authorsObj.getIdauthors());
-
-                session.getTransaction()
-                        .commit();
+                session.getTransaction().commit();
                 return get;
             }
         }
@@ -88,10 +130,19 @@ public class Read {
         return authorsList;
     }
 
+//------------------------------------------------------------------------------ DISPLAY OBJECT INFO
+    private static void displayObject(Object object) {
+        if (!isNull(object)) {
+            System.out.println(object.toString());
+        } else { 
+        }
+    }
 //------------------------------------------------------------------------------ DISPLAY INFO
+
     private static void displayAuthor(Authors author) {
         if (!isNull(author)) {
             System.out.println(author.toString());
+        } else { 
         }
     }
 
@@ -99,8 +150,7 @@ public class Read {
     private static void displayAuthorsList(List<Authors> authorsList) {
         if (!isNull(authorsList)) {
             for (Authors list : authorsList) {
-                if (isEntityIDExist(Authors.class,
-                        list.getIdauthors())) {
+                if (isEntityIDExist(Authors.class, list.getIdauthors())) {
                     System.out.println(list.toString());
                 }
             }
@@ -134,7 +184,6 @@ public class Read {
         List<Members> members = query.getResultList();
         return members;
     }
-
 
 //------------------------------------------------------------------------------ DISPLAY LIST OF MEMBERS INFO
     private static void displayMembersList(List<Members> members) {

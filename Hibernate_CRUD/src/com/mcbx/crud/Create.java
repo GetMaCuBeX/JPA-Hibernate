@@ -3,6 +3,7 @@ package com.mcbx.crud;
 import hibernate.Config;
 import com.mcbx.entity.Authors;
 import java.util.List;
+import static java.util.Objects.isNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -15,13 +16,31 @@ public class Create {
     public static void main(String[] args) {
         try {
             createSessionFactory(Authors.class);
-            openSession();
-            Authors author = new Authors("firstname", "lastname", "contactnumber", "Male");
-            session.save(author);
-            session.getTransaction().commit();
-            displayAuthor(author);
+            Authors author = new Authors("Jojo", "Scooby", "09587931547", "Male");
+            addAuthor(author);
+            displayObject(author);
         } finally {
             factory.close();
+        }
+    }
+
+//------------------------------------------------------------------------------ ADD OBJECT
+    public static void addAuthor(Authors authorsObj) {
+        try {
+            session.save(authorsObj);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            if (session.getTransaction() != null) {
+                session.getTransaction().rollback();
+            }
+        }
+    }
+
+//------------------------------------------------------------------------------ DISPLAY OBJECT INFO
+    private static void displayObject(Object object) {
+        if (!isNull(object)) {
+            System.out.println(object.toString());
+        } else {
         }
     }
 
